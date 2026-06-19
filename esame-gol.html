@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="it" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulatore Esame GOL Export</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+/* ===== DESIGN TOKENS ===== */
+:root, [data-theme="light"] {
+  --color-bg: #f7f6f2;
+  --color-surface: #f9f8f5;
+  --color-surface-2: #fbfbf9;
+  --color-surface-offset: #f3f0ec;
+  --color-surface-offset-2: #edeae5;
+  --color-surface-dynamic: #e6e4df;
+  --color-divider: #dcd9d5;
+  --color-border: #d4d1ca;
+  --color-text: #28251d;
+  --color-text-muted: #7a7974;
+  --color-text-faint: #bab9b4;
+  --color-text-inverse: #f9f8f4;
+  --color-primary: #01696f;
+  --color-primary-hover: #0c4e54;
+  --color-primary-active: #0f3638;
+  --color-primary-highlight: #cedcd8;
+  --color-success: #437a22;
+  --color-success-hover: #2e5c10;
+  --color-success-highlight: #d4dfcc;
+  --color-error: #a12c7b;
+  --color-error-hover: #7d1e5e;
+  --color-error-highlight: #e0ced7;
+  --color-warning: #964219;
+  --color-warning-highlight: #ddcfc6;
+  --shadow-sm: 0 1px 2px oklch(0.2 0.01 80 / 0.06);
+  --shadow-md: 0 4px 12px oklch(0.2 0.01 80 / 0.08);
+  --shadow-lg: 0 12px 32px oklch(0.2 0.01 80 / 0.12);
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-full: 9999px;
+  --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem;
+  --space-4: 1rem; --space-5: 1.25rem; --space-6: 1.5rem;
+  --space-8: 2rem; --space-10: 2.5rem; --space-12: 3rem;
+  --space-16: 4rem; --space-20: 5rem;
+  --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+  --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
+  --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+  --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
+  --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
+  --text-2xl: clamp(2rem, 1.2rem + 2.5vw, 3.5rem);
+  --font-display: 'Instrument Serif', Georgia, serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --transition: 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  --content-narrow: 640px;
+  --content-default: 860px;
+}
+[data-theme="dark"] {
+  --color-bg: #171614;
+  --color-surface: #1c1b19;
+  --color-surface-2: #201f1d;
+  --color-surface-offset: #1d1c1a;
+  --color-surface-offset-2: #22211f;
+  --color-surface-dynamic: #2d2c2a;
+  --color-divider: #262523;
+  --color-border: #393836;
+  --color-text: #cdccca;
+  --color-text-muted: #797876;
+  --color-text-faint: #5a5957;
+  --color-text-inverse: #2b2a28;
+  --color-primary: #4f98a3;
+  --color-primary-hover: #227f8b;
+  --color-primary-active: #1a626b;
+  --color-primary-highlight: #313b3b;
+  --color-success: #6daa45;
+  --color-success-hover: #4d8f25;
+  --color-success-highlight: #3a4435;
+  --color-error: #d163a7;
+  --color-error-hover: #b9478f;
+  --color-error-highlight: #4c3d46;
+  --color-warning: #bb653b;
+  --color-warning-highlight: #564942;
+  --shadow-sm: 0 1px 2px oklch(0 0 0 / 0.2);
+  --shadow-md: 0 4px 12px oklch(0 0 0 / 0.3);
+  --shadow-lg: 0 12px 32px oklch(0 0 0 / 0.4);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --color-bg: #171614; --color-surface: #1c1b19; --color-surface-2: #201f1d;
+    --color-surface-offset: #1d1c1a; --color-border: #393836; --color-divider: #262523;
+    --color-text: #cdccca; --color-text-muted: #797876; --color-text-faint: #5a5957;
+    --color-primary: #4f98a3; --color-primary-hover: #227f8b;
+    --color-success: #6daa45; --color-success-highlight: #3a4435;
+    --color-error: #d163a7; --color-error-highlight: #4c3d46;
+  }
+}
+
+/* ===== BASE ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-font-smoothing: antialiased; scroll-behavior: smooth; }
+body {
+  min-height: 100dvh;
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  color: var(--color-text);
+  background: var(--color-bg);
+  line-height: 1.6;
+}
+button { cursor: pointer; background: none; border: none; font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; border-radius: var(--radius-sm); }
+a, button { transition: color var(--transition), background var(--transition), border-color var(--transition), box-shadow var(--transition); }
+
+/* ===== LAYOUT ===== */
+.app { display: flex; flex-direction: column; min-height: 100dvh; }
+
+/* ===== HEADER ===== */
+.header {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-3) var(--space-6);
+}
+.header-inner {
+  max-width: var(--content-default);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+.logo {
+  display: flex; align-items: center; gap: var(--space-3);
+  text-decoration: none; color: var(--color-text);
+}
+.logo-icon { color: var(--color-primary); flex-shrink: 0; }
+.logo-text { font-family: var(--font-display); font-size: var(--text-lg); line-height: 1.1; }
+.logo-sub { font-size: var(--text-xs); color: var(--color-text-muted); display: block; font-family: var(--font-body); }
+.header-actions { display: flex; align-items: center; gap: var(--space-3); }
+.theme-toggle {
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+}
+.theme-toggle:hover { background: var(--color-surface-offset); color: var(--color-text); }
+.progress-pill {
+  font-size: var(--text-xs); font-weight: 600;
+  padding: var(--space-1) var(--space-3);
+  background: var(--color-primary-highlight);
+  color: var(--color-primary);
+  border-radius: var(--radius-full);
+  display: none;
+}
+
+/* ===== MAIN ===== */
+main { flex: 1; padding: var(--space-8) var(--space-4); }
+.container { max-width: var(--content-default); margin: 0 auto; }
+
+/* ===== SCREENS ===== */
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* ===== HOME SCREEN ===== */
+.hero {
+  text-align: center;
+  padding: var(--space-16) var(--space-4);
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: var(--space-2);
+  font-size: var(--text-xs); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--color-primary);
+  background: var(--color-primary-highlight);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  margin-bottom: var(--space-6);
+}
+.hero h1 {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  color: var(--color-text);
+  margin-bottom: var(--space-4);
+  line-height: 1.15;
+}
+.hero p {
+  font-size: var(--text-base);
+  color: var(--color-text-muted);
+  max-width: 52ch;
+  margin: 0 auto var(--space-10);
+  line-height: 1.7;
+}
+.topics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-4);
+  margin: 0 auto var(--space-10);
+  text-align: left;
+}
+.topic-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  display: flex; gap: var(--space-4); align-items: flex-start;
+  box-shadow: var(--shadow-sm);
+}
+.topic-number {
+  width: 32px; height: 32px; flex-shrink: 0;
+  background: var(--color-primary-highlight);
+  color: var(--color-primary);
+  border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--text-xs); font-weight: 700;
+}
+.topic-name { font-size: var(--text-sm); font-weight: 600; margin-bottom: var(--space-1); }
+.topic-count { font-size: var(--text-xs); color: var(--color-text-muted); }
+
+.btn-start {
+  display: inline-flex; align-items: center; gap: var(--space-3);
+  padding: var(--space-4) var(--space-10);
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  border-radius: var(--radius-full);
+  font-size: var(--text-base); font-weight: 600;
+  box-shadow: var(--shadow-md);
+  letter-spacing: 0.01em;
+  text-decoration: none;
+}
+.btn-start:hover { background: var(--color-primary-hover); box-shadow: var(--shadow-lg); }
+.btn-start:active { background: var(--color-primary-active); }
+
+/* ===== EXAM SCREEN ===== */
+.exam-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-8);
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+.exam-meta { font-size: var(--text-sm); color: var(--color-text-muted); }
+.exam-meta strong { color: var(--color-text); font-weight: 600; }
+
+.progress-bar-wrap {
+  width: 100%;
+  height: 6px;
+  background: var(--color-surface-dynamic);
+  border-radius: var(--radius-full);
+  margin-bottom: var(--space-8);
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: var(--color-primary);
+  border-radius: var(--radius-full);
+  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.topic-label {
+  display: inline-block;
+  font-size: var(--text-xs); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--color-primary);
+  background: var(--color-primary-highlight);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  margin-bottom: var(--space-4);
+}
+
+.question-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-8);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--space-6);
+}
+.question-number {
+  font-size: var(--text-xs); color: var(--color-text-faint); font-weight: 500;
+  margin-bottom: var(--space-3);
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.question-text {
+  font-size: var(--text-lg); font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: var(--space-6);
+  line-height: 1.4;
+}
+
+.options-list { display: flex; flex-direction: column; gap: var(--space-3); }
+.option-btn {
+  display: flex; align-items: center; gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  background: var(--color-surface-2);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  text-align: left;
+  font-size: var(--text-base);
+  cursor: pointer;
+  transition: all var(--transition);
+  width: 100%;
+}
+.option-btn:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  background: var(--color-primary-highlight);
+  box-shadow: var(--shadow-sm);
+}
+.option-btn:disabled { cursor: default; }
+.option-key {
+  width: 28px; height: 28px; flex-shrink: 0;
+  background: var(--color-surface-dynamic);
+  border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--text-xs); font-weight: 700;
+  color: var(--color-text-muted);
+  transition: all var(--transition);
+}
+.option-btn.selected { border-color: var(--color-primary); background: var(--color-primary-highlight); }
+.option-btn.selected .option-key { background: var(--color-primary); color: var(--color-text-inverse); }
+
+.exam-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+}
+.btn {
+  display: inline-flex; align-items: center; gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm); font-weight: 600;
+  transition: all var(--transition);
+}
+.btn-primary {
+  background: var(--color-primary); color: var(--color-text-inverse);
+}
+.btn-primary:hover { background: var(--color-primary-hover); }
+.btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn-ghost {
+  background: transparent; color: var(--color-text-muted);
+  border: 1.5px solid var(--color-border);
+}
+.btn-ghost:hover { background: var(--color-surface-offset); color: var(--color-text); border-color: var(--color-text-muted); }
+
+.question-dots {
+  display: flex; gap: var(--space-2); flex-wrap: wrap; justify-content: center;
+  margin-bottom: var(--space-6);
+}
+.q-dot {
+  width: 10px; height: 10px;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-dynamic);
+  transition: background var(--transition);
+}
+.q-dot.answered { background: var(--color-primary); }
+.q-dot.current { background: var(--color-text-muted); outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+/* ===== RESULTS SCREEN ===== */
+.results-header {
+  text-align: center;
+  padding: var(--space-12) var(--space-4) var(--space-10);
+}
+.score-circle {
+  width: 120px; height: 120px;
+  border-radius: var(--radius-full);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  margin: 0 auto var(--space-6);
+  border: 4px solid;
+  font-family: var(--font-display);
+}
+.score-circle.pass { border-color: var(--color-success); background: var(--color-success-highlight); color: var(--color-success); }
+.score-circle.fail { border-color: var(--color-error); background: var(--color-error-highlight); color: var(--color-error); }
+.score-number { font-size: var(--text-xl); font-weight: 700; line-height: 1; }
+.score-total { font-size: var(--text-xs); color: var(--color-text-muted); font-family: var(--font-body); }
+.results-title { font-family: var(--font-display); font-size: var(--text-xl); margin-bottom: var(--space-3); }
+.results-subtitle { font-size: var(--text-base); color: var(--color-text-muted); }
+
+.stats-row {
+  display: flex; justify-content: center; gap: var(--space-6);
+  margin-bottom: var(--space-10); flex-wrap: wrap;
+}
+.stat-chip {
+  display: flex; align-items: center; gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm); font-weight: 600;
+}
+.stat-chip.correct { background: var(--color-success-highlight); color: var(--color-success); }
+.stat-chip.wrong { background: var(--color-error-highlight); color: var(--color-error); }
+.stat-chip.skipped { background: var(--color-surface-dynamic); color: var(--color-text-muted); }
+
+.results-topic-group {
+  margin-bottom: var(--space-8);
+}
+.results-topic-title {
+  font-size: var(--text-sm); font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+  color: var(--color-primary);
+  padding: var(--space-3) var(--space-5);
+  background: var(--color-primary-highlight);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  border: 1px solid var(--color-border);
+  border-bottom: none;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.topic-score-badge {
+  font-size: var(--text-xs); font-weight: 600;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+}
+.result-item {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-top: none;
+  padding: var(--space-5) var(--space-5);
+}
+.result-item:last-child { border-radius: 0 0 var(--radius-lg) var(--radius-lg); }
+.result-q-text { font-size: var(--text-sm); font-weight: 600; margin-bottom: var(--space-3); color: var(--color-text); line-height: 1.45; }
+.answer-row { display: flex; align-items: flex-start; gap: var(--space-3); font-size: var(--text-sm); }
+.answer-icon {
+  width: 20px; height: 20px; flex-shrink: 0;
+  border-radius: var(--radius-full);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; margin-top: 2px;
+}
+.answer-icon.correct { background: var(--color-success); color: white; }
+.answer-icon.wrong { background: var(--color-error); color: white; }
+.answer-icon.missing { background: var(--color-surface-dynamic); color: var(--color-text-muted); }
+.answer-label { color: var(--color-text-muted); font-weight: 500; margin-right: var(--space-1); }
+.answer-text { color: var(--color-text); flex: 1; }
+.answer-text.correct-text { color: var(--color-success); font-weight: 600; }
+.answer-text.wrong-text { color: var(--color-error); font-weight: 600; text-decoration: line-through; }
+.correct-answer-row { margin-top: var(--space-2); }
+
+.results-actions {
+  text-align: center;
+  padding: var(--space-10) var(--space-4) var(--space-16);
+  display: flex; gap: var(--space-4); justify-content: center; flex-wrap: wrap;
+}
+.btn-lg {
+  padding: var(--space-4) var(--space-8);
+  font-size: var(--text-base);
+  border-radius: var(--radius-full);
+}
+.btn-success { background: var(--color-success); color: white; }
+.btn-success:hover { background: var(--color-success-hover); }
+
+/* ===== DIVIDER ===== */
+.result-item + .result-item { border-top: 1px solid var(--color-divider); }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 600px) {
+  .header { padding: var(--space-3) var(--space-4); }
+  .question-card { padding: var(--space-5); }
+  .exam-header { flex-direction: column; align-items: flex-start; gap: var(--space-2); }
+  .hero h1 { font-size: clamp(1.6rem, 6vw, 2.5rem); }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-inner">
+      <a class="logo" href="#" onclick="goHome(); return false;">
+        <svg class="logo-icon" width="32" height="32" viewBox="0 0 32 32" fill="none" aria-label="GOL Export logo">
+          <rect width="32" height="32" rx="8" fill="currentColor" opacity="0.12"/>
+          <path d="M8 16 Q16 6 24 16 Q16 26 8 16Z" stroke="currentColor" stroke-width="1.8" fill="none"/>
+          <circle cx="16" cy="16" r="3" fill="currentColor"/>
+          <path d="M16 10 L16 6 M16 22 L16 26 M10 16 L6 16 M22 16 L26 16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+        <div>
+          <span class="logo-text">GOL Export</span>
+          <span class="logo-sub">Simulatore Esame</span>
+        </div>
+      </a>
+      <div class="header-actions">
+        <span class="progress-pill" id="progressPill">0 / 30</span>
+        <button class="theme-toggle" data-theme-toggle aria-label="Cambia tema">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+
+      <!-- HOME SCREEN -->
+      <section class="screen active" id="screenHome">
+        <div class="hero">
+          <div class="hero-badge">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+            Esame di Qualifica
+          </div>
+          <h1>Simulatore Esame<br>GOL Export</h1>
+          <p>Metti alla prova le tue conoscenze con 30 domande casuali estratte dalle 90 del programma completo — 5 per ogni macro-argomento.</p>
+
+          <div class="topics-grid">
+            <div class="topic-card"><div class="topic-number">1</div><div><div class="topic-name">Marketing Fundamentals</div><div class="topic-count">15 domande in banca</div></div></div>
+            <div class="topic-card"><div class="topic-number">2</div><div><div class="topic-name">Organizzazione Aziendale</div><div class="topic-count">15 domande in banca</div></div></div>
+            <div class="topic-card"><div class="topic-number">3</div><div><div class="topic-name">Digital Marketing</div><div class="topic-count">15 domande in banca</div></div></div>
+            <div class="topic-card"><div class="topic-number">4</div><div><div class="topic-name">Commercio Internazionale</div><div class="topic-count">15 domande in banca</div></div></div>
+            <div class="topic-card"><div class="topic-number">5</div><div><div class="topic-name">Business Plan</div><div class="topic-count">15 domande in banca</div></div></div>
+            <div class="topic-card"><div class="topic-number">6</div><div><div class="topic-name">Trade Marketing</div><div class="topic-count">15 domande in banca</div></div></div>
+          </div>
+
+          <button class="btn-start" onclick="startExam()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Inizia simulazione
+          </button>
+        </div>
+      </section>
+
+      <!-- EXAM SCREEN -->
+      <section class="screen" id="screenExam">
+        <div class="exam-header">
+          <div class="exam-meta">Domanda <strong id="qCurrent">1</strong> di <strong>30</strong></div>
+          <div class="exam-meta" id="topicMeta"></div>
+        </div>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+        </div>
+        <div class="question-dots" id="questionDots"></div>
+        <div class="question-card">
+          <div class="topic-label" id="topicLabel"></div>
+          <div class="question-number" id="questionNum"></div>
+          <div class="question-text" id="questionText"></div>
+          <div class="options-list" id="optionsList"></div>
+        </div>
+        <div class="exam-nav">
+          <button class="btn btn-ghost" id="btnPrev" onclick="prevQuestion()">← Precedente</button>
+          <button class="btn btn-primary" id="btnNext" onclick="nextQuestion()">Successiva →</button>
+        </div>
+      </section>
+
+      <!-- RESULTS SCREEN -->
+      <section class="screen" id="screenResults">
+        <div class="results-header">
+          <div class="score-circle" id="scoreCircle">
+            <div class="score-number" id="scoreNumber">—</div>
+            <div class="score-total">su 30</div>
+          </div>
+          <div class="results-title" id="resultsTitle"></div>
+          <div class="results-subtitle" id="resultsSubtitle"></div>
+        </div>
+        <div class="stats-row" id="statsRow"></div>
+        <div id="resultsDetail"></div>
+        <div class="results-actions">
+          <button class="btn btn-primary btn-lg" onclick="startExam()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.3"/></svg>
+            Nuova simulazione
+          </button>
+          <button class="btn btn-ghost btn-lg" onclick="goHome()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            Home
+          </button>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script>
+// ===== QUESTION BANK =====
+const BANK = [
+  // ─── MARKETING FUNDAMENTALS (0-14) ───
+  { topic: "Marketing Fundamentals", q: "Il marketing è principalmente:", opts: ["Un insieme di tecniche di vendita", "Un processo di creazione di valore per il cliente", "Un'attività esclusivamente promozionale"], ans: 1 },
+  { topic: "Marketing Fundamentals", q: "Il mercato è:", opts: ["Luogo di incontro tra domanda e offerta", "Un sistema burocratico", "Un accordo tra concorrenti"], ans: 0 },
+  { topic: "Marketing Fundamentals", q: "Segmentare il mercato significa:", opts: ["Dividere i clienti in gruppi omogenei", "Eliminare i concorrenti", "Vendere a tutti"], ans: 0 },
+  { topic: "Marketing Fundamentals", q: "Il target di mercato è:", opts: ["Un sistema di classificazione dei concorrenti", "Un metodo di produzione", "Il cliente ideale del prodotto"], ans: 2 },
+  { topic: "Marketing Fundamentals", q: "Perché è importante definire il target di mercato?", opts: ["Per imitare i concorrenti", "Per focalizzare strategie e attività", "Per ridurre i costi"], ans: 1 },
+  { topic: "Marketing Fundamentals", q: "Il valore percepito dipende da:", opts: ["Prezzo", "Produzione", "Benefici percepiti rispetto ai costi"], ans: 2 },
+  { topic: "Marketing Fundamentals", q: "Il concorrente principale è:", opts: ["Solo chi vende lo stesso prodotto", "Qualsiasi alternativa allo stesso bisogno", "Solo aziende multinazionali"], ans: 1 },
+  { topic: "Marketing Fundamentals", q: "L'elasticità della domanda indica:", opts: ["Reazione della domanda al prezzo", "Strategia aziendale", "Metodo di vendita"], ans: 0 },
+  { topic: "Marketing Fundamentals", q: "Il posizionamento riguarda:", opts: ["Logistica", "Immagine nella mente del cliente", "Magazzino"], ans: 1 },
+  { topic: "Marketing Fundamentals", q: "Adattare il prodotto al mercato serve a:", opts: ["Copiare ciò che fanno le multinazionali", "Aumentare i costi", "Rispondere meglio ai bisogni clienti"], ans: 2 },
+  { topic: "Marketing Fundamentals", q: "Le aziende cercano nuovi mercati per:", opts: ["Pagare meno tasse", "Trovare nuove opportunità di vendita", "Seguire i trend"], ans: 1 },
+  { topic: "Marketing Fundamentals", q: "Il passaparola negativo:", opts: ["Non conta", "Aiuta le vendite", "Ha un forte impatto reputazionale"], ans: 2 },
+  { topic: "Marketing Fundamentals", q: "La segmentazione può essere:", opts: ["Geografica, demografica o comportamentale", "Solo economica", "Solo casuale"], ans: 0 },
+  { topic: "Marketing Fundamentals", q: "Il marketing NON è:", opts: ["Analisi bisogni", "Solo pubblicità", "Strategia"], ans: 1 },
+  { topic: "Marketing Fundamentals", q: "Il principale obiettivo del marketing moderno è:", opts: ["Vendere il più possibile subito", "Soddisfare i bisogni dei clienti", "Ridurre il personale"], ans: 1 },
+
+  // ─── ORGANIZZAZIONE AZIENDALE (15-29) ───
+  { topic: "Organizzazione Aziendale", q: "Un organigramma serve a:", opts: ["Visualizzare ruoli e responsabilità", "Fare marketing", "Aumentare le vendite"], ans: 0 },
+  { topic: "Organizzazione Aziendale", q: "La struttura funzionale privilegia:", opts: ["Specializzazione per aree", "Velocità dei processi", "Autonomia totale"], ans: 0 },
+  { topic: "Organizzazione Aziendale", q: "La struttura divisionale è adatta quando:", opts: ["C'è un solo prodotto", "Si opera su mercati diversi", "L'azienda è piccola"], ans: 1 },
+  { topic: "Organizzazione Aziendale", q: "La struttura a matrice prevede:", opts: ["Nessuna gerarchia", "Un solo responsabile", "Due linee di autorità"], ans: 2 },
+  { topic: "Organizzazione Aziendale", q: "La direzione commerciale gestisce:", opts: ["Clienti e vendite", "Produzione", "Ricerca e Sviluppo"], ans: 0 },
+  { topic: "Organizzazione Aziendale", q: "La R&S si occupa di:", opts: ["Marketing", "Innovazione del prodotto", "Logistica"], ans: 1 },
+  { topic: "Organizzazione Aziendale", q: "La comunicazione è più difficile in:", opts: ["Team piccoli", "Startup", "Strutture rigide gerarchiche"], ans: 2 },
+  { topic: "Organizzazione Aziendale", q: "Una struttura per processi è centrata su:", opts: ["Funzioni", "Flussi di valore", "Gerarchie"], ans: 1 },
+  { topic: "Organizzazione Aziendale", q: "La struttura divisionale organizza per:", opts: ["Prodotti/mercati", "Ruoli casuali", "Anzianità"], ans: 0 },
+  { topic: "Organizzazione Aziendale", q: "Il management aziendale riguarda:", opts: ["Pianificazione e controllo attività", "Solo contabilità", "Solo vendite"], ans: 0 },
+  { topic: "Organizzazione Aziendale", q: "Un'organizzazione efficiente deve avere:", opts: ["Ruoli chiari", "Confusione", "Gerarchie infinite"], ans: 0 },
+  { topic: "Organizzazione Aziendale", q: "La responsabilità decisionale indica:", opts: ["Chi esegue ordini", "Chi vende", "Chi prende decisioni operative o strategiche"], ans: 2 },
+  { topic: "Organizzazione Aziendale", q: "La struttura organizzativa influisce su:", opts: ["Solo costi", "Efficienza e performance aziendale", "Solo branding"], ans: 1 },
+  { topic: "Organizzazione Aziendale", q: "Una divisione aziendale è:", opts: ["Un'unità autonoma organizzativa", "Un team casuale", "Un ufficio temporaneo"], ans: 0 },
+  { topic: "Organizzazione Aziendale", q: "L'obiettivo della progettazione organizzativa è:", opts: ["Complicare flussi", "Ottimizzare coordinamento e risultati", "Aumentare livelli gerarchici"], ans: 1 },
+
+  // ─── DIGITAL MARKETING (30-44) ───
+  { topic: "Digital Marketing", q: "Una strategia digitale parte da:", opts: ["Logo", "Analisi target e obiettivi", "Pubblicità casuale"], ans: 1 },
+  { topic: "Digital Marketing", q: "SEO significa:", opts: ["Email marketing", "Advertising", "Ottimizzazione motori ricerca"], ans: 2 },
+  { topic: "Digital Marketing", q: "SEA indica:", opts: ["Advertising su motori di ricerca", "Social media", "Design"], ans: 0 },
+  { topic: "Digital Marketing", q: "Il traffico organico deriva da:", opts: ["Annunci", "Risultati naturali ricerca", "Banner TV"], ans: 1 },
+  { topic: "Digital Marketing", q: "KPI significa:", opts: ["Key Performance Indicators", "Key Promotion Index", "Knowledge Plan Integration"], ans: 0 },
+  { topic: "Digital Marketing", q: "Il funnel rappresenta:", opts: ["Budget", "Struttura aziendale", "Percorso cliente verso acquisto"], ans: 2 },
+  { topic: "Digital Marketing", q: "Conversione significa:", opts: ["Visita sito", "Like", "Azione desiderata utente"], ans: 2 },
+  { topic: "Digital Marketing", q: "Il CTR misura:", opts: ["Clic su annuncio", "Tempo pagina", "Profitto"], ans: 0 },
+  { topic: "Digital Marketing", q: "Landing page efficace:", opts: ["Molti obiettivi", "Uno solo chiaro", "Nessun CTA"], ans: 1 },
+  { topic: "Digital Marketing", q: "Remarketing serve a:", opts: ["Nuovi utenti freddi", "Ricontattare interessati", "Eliminare concorrenti"], ans: 1 },
+  { topic: "Digital Marketing", q: "Una campagna digitale efficace deve avere:", opts: ["Solo creatività", "Solo budget alto", "Obiettivi misurabili"], ans: 2 },
+  { topic: "Digital Marketing", q: "L'engagement misura:", opts: ["Costi", "Coinvolgimento utenti", "Produzione"], ans: 1 },
+  { topic: "Digital Marketing", q: "Un KPI di traffico è:", opts: ["Impression", "Visitatori unici", "Costi produzione"], ans: 1 },
+  { topic: "Digital Marketing", q: "Il tasso di conversione dipende da:", opts: ["Design e contenuto pagina", "Assenza di pop-up", "Colore logo"], ans: 0 },
+  { topic: "Digital Marketing", q: "L'analisi dati serve a:", opts: ["Confondere report", "Ottimizzare strategie digitali", "Aumentare gerarchia"], ans: 1 },
+
+  // ─── COMMERCIO INTERNAZIONALE (45-59) ───
+  { topic: "Commercio Internazionale", q: "I documenti di trasporto servono a:", opts: ["Pubblicità", "Certificare spedizione merci", "Marketing"], ans: 1 },
+  { topic: "Commercio Internazionale", q: "I dazi servono a:", opts: ["Proteggere economia interna", "Fare marketing", "Ridurre export"], ans: 0 },
+  { topic: "Commercio Internazionale", q: "L'ICE supporta imprese per:", opts: ["Spedizioni", "Produzione", "Informazioni commercio estero"], ans: 2 },
+  { topic: "Commercio Internazionale", q: "Il pagamento più sicuro per il venditore è:", opts: ["Dopo consegna", "Anticipo pagamento", "A rate"], ans: 1 },
+  { topic: "Commercio Internazionale", q: "Sistema più sicuro per pagamenti esteri:", opts: ["Lettera di credito", "Assegno", "Bonifico semplice"], ans: 0 },
+  { topic: "Commercio Internazionale", q: "Una joint venture è:", opts: ["Legge", "Società tra aziende di paesi diversi", "Tassa"], ans: 1 },
+  { topic: "Commercio Internazionale", q: "L'agente estero è:", opts: ["Magazziniere", "Contabile", "Figura commerciale di vendita"], ans: 2 },
+  { topic: "Commercio Internazionale", q: "La logistica internazionale è:", opts: ["Strategica competitivamente", "Marginale", "Inutile"], ans: 0 },
+  { topic: "Commercio Internazionale", q: "La supply chain comprende:", opts: ["Solo trasporto", "Tutte le fasi fino al cliente finale", "Solo produzione"], ans: 1 },
+  { topic: "Commercio Internazionale", q: "Un ritardo doganale causa:", opts: ["Nulla", "Bonus", "Costi e ritardi consegna"], ans: 2 },
+  { topic: "Commercio Internazionale", q: "Le VLC Vessel sono:", opts: ["Navi container giganti", "Camion", "Treni"], ans: 0 },
+  { topic: "Commercio Internazionale", q: "Analisi rischio paese serve a:", opts: ["Marketing", "Valutare rischio credito estero", "Packaging"], ans: 1 },
+  { topic: "Commercio Internazionale", q: "Gli Incoterms regolano:", opts: ["Responsabilità sul trasporto", "Prezzi della pubblicità", "Contratti di lavoro"], ans: 0 },
+  { topic: "Commercio Internazionale", q: "Un contratto di commercio estero serve a:", opts: ["Formalizzare una partnership", "Definire condizioni transazione", "Pubblicità internazionale"], ans: 1 },
+  { topic: "Commercio Internazionale", q: "Una trading company aiuta a:", opts: ["Gestire i social media", "Redigere i bilanci di filiali estere", "Vendere all'estero"], ans: 2 },
+
+  // ─── BUSINESS PLAN (60-74) ───
+  { topic: "Business Plan", q: "Il business plan serve a:", opts: ["Pubblicità", "Pianificare strategia e sostenibilità", "Assumere personale"], ans: 1 },
+  { topic: "Business Plan", q: "L'Executive Summary è:", opts: ["La sezione dedicata al Bilancio", "Allegato finale di riepilogo tecnico", "Sintesi iniziale progetto"], ans: 2 },
+  { topic: "Business Plan", q: "Analisi SWOT valuta:", opts: ["Prezzi dei prodotti concorrenti", "Punti di forza, aree di debolezza, opportunità, minacce", "Performance dei concorrenti"], ans: 1 },
+  { topic: "Business Plan", q: "Il Break-even point rappresenta:", opts: ["Il fatturato massimo raggiunto", "Il prezzo minimo nell'arco di un anno", "Punto di pareggio tra costi e ricavi"], ans: 2 },
+  { topic: "Business Plan", q: "Il Cash flow misura:", opts: ["Margine teorico", "Flussi di cassa disponibili", "Vendite future"], ans: 1 },
+  { topic: "Business Plan", q: "La Sezione finanziaria include:", opts: ["Logo aziendale", "Mission e Vision dell'azienda", "Previsioni economiche"], ans: 2 },
+  { topic: "Business Plan", q: "La Mission aziendale definisce:", opts: ["Obiettivi di business a breve termine", "Lo Scopo dell'impresa", "Le caratteristiche del logo aziendale"], ans: 1 },
+  { topic: "Business Plan", q: "Il Vantaggio competitivo è:", opts: ["La differenza tra il prezzo più alto e quello più basso dell'anno passato", "L'elemento distintivo rispetto ai concorrenti", "Il ROI della pubblicità"], ans: 1 },
+  { topic: "Business Plan", q: "Il Piano di Marketing definisce:", opts: ["Le strategie commerciali", "La contabilità", "Le fasi di produzione"], ans: 0 },
+  { topic: "Business Plan", q: "Un business plan efficace è:", opts: ["Generico", "Basato su dati realistici", "Casuale"], ans: 1 },
+  { topic: "Business Plan", q: "Il target finanziario riguarda:", opts: ["I Clienti", "Gli Obiettivi economici", "I Dipendenti"], ans: 1 },
+  { topic: "Business Plan", q: "L'analisi di mercato serve a:", opts: ["Comprendere dinamiche competitive e potenziale di domanda", "Determinare esclusivamente il prezzo di vendita", "Descrivere l'organigramma aziendale"], ans: 0 },
+  { topic: "Business Plan", q: "I costi fissi sono quelli che:", opts: ["Rimangono invariati al variare del volume di produzione nel breve periodo", "Cambiano proporzionalmente alle vendite", "Dipendono dalle strategie promozionali"], ans: 0 },
+  { topic: "Business Plan", q: "I costi variabili sono quelli che:", opts: ["Restano costanti indipendentemente dalla produzione", "Variano in funzione dei livelli di attività o produzione", "Dipendono solo dal numero di dipendenti"], ans: 1 },
+  { topic: "Business Plan", q: "Il ROI misura:", opts: ["La notorietà del marchio", "Il rendimento di un investimento rispetto al capitale impiegato", "Il volume totale delle vendite"], ans: 1 },
+
+  // ─── TRADE MARKETING (75-89) ───
+  { topic: "Trade Marketing", q: "Il Trade Marketing è orientato principalmente a:", opts: ["Consumatori finali", "Intermediari commerciali e distributori", "Azionisti"], ans: 1 },
+  { topic: "Trade Marketing", q: "Il Sell-in rappresenta:", opts: ["Le vendite al cliente finale", "Le vendite dal produttore al distributore o retailer", "I resi di prodotto"], ans: 1 },
+  { topic: "Trade Marketing", q: "Il Sell-out indica:", opts: ["Le vendite effettive al consumatore finale", "I volumi spediti ai magazzini", "Le quantità prodotte"], ans: 0 },
+  { topic: "Trade Marketing", q: "La distribuzione numerica misura:", opts: ["La quota di mercato di un brand", "La percentuale di punti vendita in cui il prodotto è presente", "Il volume totale venduto"], ans: 1 },
+  { topic: "Trade Marketing", q: "La distribuzione ponderata indica:", opts: ["Il numero totale di prodotti venduti", "La presenza nei punti vendita pesata per il loro fatturato", "Il prezzo medio di vendita"], ans: 1 },
+  { topic: "Trade Marketing", q: "Il termine \"out-of-stock\" indica:", opts: ["Un eccesso di merce in magazzino", "L'assenza temporanea del prodotto a scaffale", "Un aumento del prezzo"], ans: 1 },
+  { topic: "Trade Marketing", q: "Il planogramma è uno strumento utilizzato per:", opts: ["Pianificare la disposizione dei prodotti sullo scaffale", "Monitorare il bilancio aziendale", "Gestire i contatti clienti"], ans: 0 },
+  { topic: "Trade Marketing", q: "Il merchandising riguarda:", opts: ["La gestione dei fornitori", "L'esposizione e presentazione strategica dei prodotti nel punto vendita", "La pianificazione fiscale"], ans: 1 },
+  { topic: "Trade Marketing", q: "Il Category Management consiste nel:", opts: ["Gestire le risorse umane del punto vendita", "Ottimizzare assortimento e performance delle categorie di prodotto", "Determinare gli stipendi dei venditori"], ans: 1 },
+  { topic: "Trade Marketing", q: "Una promozione trade efficace deve considerare:", opts: ["Solo il prezzo di vendita finale", "Il canale distributivo, la visibilità e la marginalità per gli attori coinvolti", "Solo la pubblicità online"], ans: 1 },
+  { topic: "Trade Marketing", q: "Il KPI più diretto per valutare una promozione in-store è:", opts: ["Numero follower social", "Vendite sell-out durante il periodo promozionale", "Numero dipendenti"], ans: 1 },
+  { topic: "Trade Marketing", q: "Il posizionamento a scaffale viene deciso principalmente in base a:", opts: ["Preferenze personali del direttore", "Rotazione del prodotto e marginalità commerciale", "Colore del packaging"], ans: 1 },
+  { topic: "Trade Marketing", q: "Lo scaffale nel retail è considerato:", opts: ["Un elemento puramente logistico", "Uno strumento strategico di vendita e comunicazione", "Solo un supporto fisico"], ans: 1 },
+  { topic: "Trade Marketing", q: "La rotazione di magazzino misura:", opts: ["La velocità con cui i prodotti vengono venduti e rimpiazzati", "Il numero di fornitori attivi", "Il valore del brand"], ans: 0 },
+  { topic: "Trade Marketing", q: "Il margine del distributore è dato da:", opts: ["Differenza tra prezzo di vendita e costo d'acquisto del prodotto", "Differenza tra costi fissi e variabili", "Percentuale di quota di mercato"], ans: 0 }
+];
+
+const TOPICS = ["Marketing Fundamentals","Organizzazione Aziendale","Digital Marketing","Commercio Internazionale","Business Plan","Trade Marketing"];
+const TOPIC_COLORS = {
+  "Marketing Fundamentals": "#01696f",
+  "Organizzazione Aziendale": "#437a22",
+  "Digital Marketing": "#7a39bb",
+  "Commercio Internazionale": "#964219",
+  "Business Plan": "#006494",
+  "Trade Marketing": "#a12c7b"
+};
+
+// ===== STATE =====
+let examQuestions = [];
+let userAnswers = [];
+let currentQ = 0;
+
+// ===== THEME =====
+(function(){
+  const t = document.querySelector('[data-theme-toggle]');
+  const r = document.documentElement;
+  let d = matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light';
+  r.setAttribute('data-theme', d);
+  updateThemeIcon(t, d);
+  t && t.addEventListener('click', () => {
+    d = d === 'dark' ? 'light' : 'dark';
+    r.setAttribute('data-theme', d);
+    updateThemeIcon(t, d);
+  });
+  function updateThemeIcon(btn, mode) {
+    if (!btn) return;
+    btn.setAttribute('aria-label', 'Cambia a tema ' + (mode === 'dark' ? 'chiaro' : 'scuro'));
+    btn.innerHTML = mode === 'dark'
+      ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>'
+      : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+  }
+})();
+
+// ===== UTILS =====
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ===== EXAM LOGIC =====
+function startExam() {
+  // Pick 5 questions per topic randomly
+  examQuestions = [];
+  TOPICS.forEach(topic => {
+    const pool = BANK.filter(q => q.topic === topic);
+    const picked = shuffle(pool).slice(0, 5);
+    examQuestions.push(...picked);
+  });
+  // Shuffle the full exam order
+  userAnswers = new Array(30).fill(null);
+  currentQ = 0;
+
+  document.getElementById('progressPill').style.display = 'flex';
+  buildDots();
+  renderQuestion();
+  showScreen('screenExam');
+  window.scrollTo(0, 0);
+}
+
+function buildDots() {
+  const container = document.getElementById('questionDots');
+  container.innerHTML = '';
+  for (let i = 0; i < 30; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'q-dot';
+    dot.id = 'dot-' + i;
+    container.appendChild(dot);
+  }
+}
+
+function updateDots() {
+  for (let i = 0; i < 30; i++) {
+    const dot = document.getElementById('dot-' + i);
+    dot.className = 'q-dot';
+    if (i === currentQ) dot.classList.add('current');
+    else if (userAnswers[i] !== null) dot.classList.add('answered');
+  }
+}
+
+function renderQuestion() {
+  const q = examQuestions[currentQ];
+  const n = currentQ + 1;
+
+  document.getElementById('qCurrent').textContent = n;
+  document.getElementById('progressPill').textContent = n + ' / 30';
+  document.getElementById('progressBar').style.width = (n / 30 * 100) + '%';
+  document.getElementById('topicLabel').textContent = q.topic;
+  document.getElementById('topicLabel').style.color = TOPIC_COLORS[q.topic] || 'var(--color-primary)';
+  document.getElementById('topicLabel').style.background = TOPIC_COLORS[q.topic] ? TOPIC_COLORS[q.topic] + '22' : 'var(--color-primary-highlight)';
+  document.getElementById('questionNum').textContent = 'Domanda ' + n + ' di 30';
+  document.getElementById('questionText').textContent = q.q;
+  document.getElementById('topicMeta').innerHTML = '<strong>' + q.topic + '</strong>';
+
+  const optList = document.getElementById('optionsList');
+  optList.innerHTML = '';
+  const letters = ['A', 'B', 'C'];
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn' + (userAnswers[currentQ] === i ? ' selected' : '');
+    btn.onclick = () => selectAnswer(i);
+    btn.innerHTML = `<span class="option-key">${letters[i]}</span><span>${opt}</span>`;
+    optList.appendChild(btn);
+  });
+
+  // Nav buttons
+  document.getElementById('btnPrev').style.visibility = currentQ === 0 ? 'hidden' : 'visible';
+  const btnNext = document.getElementById('btnNext');
+  if (currentQ === 29) {
+    btnNext.textContent = 'Consegna esame →';
+    btnNext.style.background = 'var(--color-success)';
+    btnNext.onclick = submitExam;
+  } else {
+    btnNext.innerHTML = 'Successiva →';
+    btnNext.style.background = '';
+    btnNext.onclick = nextQuestion;
+  }
+
+  updateDots();
+}
+
+function selectAnswer(idx) {
+  userAnswers[currentQ] = idx;
+  document.querySelectorAll('.option-btn').forEach((btn, i) => {
+    btn.classList.toggle('selected', i === idx);
+    btn.querySelector('.option-key').style.background = i === idx ? 'var(--color-primary)' : '';
+    btn.querySelector('.option-key').style.color = i === idx ? 'var(--color-text-inverse)' : '';
+  });
+  updateDots();
+}
+
+function nextQuestion() {
+  if (currentQ < 29) { currentQ++; renderQuestion(); window.scrollTo(0, 0); }
+}
+function prevQuestion() {
+  if (currentQ > 0) { currentQ--; renderQuestion(); window.scrollTo(0, 0); }
+}
+function submitExam() {
+  const unanswered = userAnswers.filter(a => a === null).length;
+  if (unanswered > 0) {
+    if (!confirm(`Hai ${unanswered} domand${unanswered > 1 ? 'e' : 'a'} senza risposta. Vuoi consegnare comunque?`)) return;
+  }
+  showResults();
+}
+
+// ===== RESULTS =====
+function showResults() {
+  let correct = 0;
+  let wrong = 0;
+  let skipped = 0;
+
+  examQuestions.forEach((q, i) => {
+    if (userAnswers[i] === null) skipped++;
+    else if (userAnswers[i] === q.ans) correct++;
+    else wrong++;
+  });
+
+  // Score circle
+  const circle = document.getElementById('scoreCircle');
+  const passed = correct >= 18;
+  circle.className = 'score-circle ' + (passed ? 'pass' : 'fail');
+  document.getElementById('scoreNumber').textContent = correct;
+  document.getElementById('resultsTitle').textContent = passed ? '🎉 Superato!' : '📚 Da migliorare';
+  document.getElementById('resultsSubtitle').textContent = passed
+    ? `Ottimo lavoro! Hai risposto correttamente al ${Math.round(correct/30*100)}% delle domande.`
+    : `Continua ad esercitarti. Soglia superamento: 18/30 (max 12 errori ammessi).`;
+
+  // Stats chips
+  document.getElementById('statsRow').innerHTML = `
+    <div class="stat-chip correct">✓ ${correct} Corrette</div>
+    <div class="stat-chip wrong">✗ ${wrong} Errate</div>
+    ${skipped ? `<div class="stat-chip skipped">— ${skipped} Saltate</div>` : ''}
+  `;
+
+  // Detailed results by topic
+  const detail = document.getElementById('resultsDetail');
+  detail.innerHTML = '';
+  TOPICS.forEach(topic => {
+    const topicQs = examQuestions.map((q, i) => ({q, i})).filter(({q}) => q.topic === topic);
+    let topicCorrect = 0;
+    topicQs.forEach(({q, i}) => { if (userAnswers[i] === q.ans) topicCorrect++; });
+    const color = TOPIC_COLORS[topic] || 'var(--color-primary)';
+
+    const group = document.createElement('div');
+    group.className = 'results-topic-group';
+    group.innerHTML = `<div class="results-topic-title" style="color:${color}; background:${color}22; border-color:${color}33;">
+      ${topic}
+      <span class="topic-score-badge" style="background:${color}">${topicCorrect}/5</span>
+    </div>`;
+
+    topicQs.forEach(({q, i}, qi) => {
+      const userAns = userAnswers[i];
+      const isCorrect = userAns === q.ans;
+      const isSkipped = userAns === null;
+      const item = document.createElement('div');
+      item.className = 'result-item';
+
+      let answerHTML = '';
+      const letters = ['A', 'B', 'C'];
+
+      if (isSkipped) {
+        answerHTML = `
+          <div class="answer-row">
+            <div class="answer-icon missing">—</div>
+            <span class="answer-label">Tua risposta:</span>
+            <span class="answer-text" style="color:var(--color-text-muted)">Non risposta</span>
+          </div>
+          <div class="answer-row correct-answer-row">
+            <div class="answer-icon correct">✓</div>
+            <span class="answer-label">Risposta corretta:</span>
+            <span class="answer-text correct-text">${letters[q.ans]}. ${q.opts[q.ans]}</span>
+          </div>`;
+      } else if (isCorrect) {
+        answerHTML = `
+          <div class="answer-row">
+            <div class="answer-icon correct">✓</div>
+            <span class="answer-label">Tua risposta:</span>
+            <span class="answer-text correct-text">${letters[userAns]}. ${q.opts[userAns]}</span>
+          </div>`;
+      } else {
+        answerHTML = `
+          <div class="answer-row">
+            <div class="answer-icon wrong">✗</div>
+            <span class="answer-label">Tua risposta:</span>
+            <span class="answer-text wrong-text">${letters[userAns]}. ${q.opts[userAns]}</span>
+          </div>
+          <div class="answer-row correct-answer-row">
+            <div class="answer-icon correct">✓</div>
+            <span class="answer-label">Risposta corretta:</span>
+            <span class="answer-text correct-text">${letters[q.ans]}. ${q.opts[q.ans]}</span>
+          </div>`;
+      }
+
+      item.innerHTML = `<div class="result-q-text">${qi+1}. ${q.q}</div>${answerHTML}`;
+      group.appendChild(item);
+    });
+    detail.appendChild(group);
+  });
+
+  document.getElementById('progressPill').style.display = 'none';
+  showScreen('screenResults');
+  window.scrollTo(0, 0);
+}
+
+function goHome() {
+  document.getElementById('progressPill').style.display = 'none';
+  showScreen('screenHome');
+  window.scrollTo(0, 0);
+}
+</script>
+</body>
+</html>
