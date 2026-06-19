@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Export & International Business Management - GEMA/ed.3</title>
+<title>Simulatore Esame GOL Export</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
@@ -458,6 +458,89 @@ main { flex: 1; padding: var(--space-8) var(--space-4); }
   .exam-header { flex-direction: column; align-items: flex-start; gap: var(--space-2); }
   .hero h1 { font-size: clamp(1.6rem, 6vw, 2.5rem); }
 }
+
+/* ===== PASSWORD SCREEN ===== */
+.password-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;
+  text-align: center;
+  padding: var(--space-8) var(--space-4);
+}
+.password-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-10) var(--space-12);
+  box-shadow: var(--shadow-md);
+  width: 100%;
+  max-width: 420px;
+}
+.password-logo { color: var(--color-primary); margin: 0 auto var(--space-6); }
+.password-title {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  margin-bottom: var(--space-2);
+}
+.password-subtitle {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-8);
+}
+.password-field { margin-bottom: var(--space-4); text-align: left; }
+.password-field label {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-2);
+  letter-spacing: 0.03em;
+}
+.password-input {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface-2);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--text-base);
+  color: var(--color-text);
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.password-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px oklch(from var(--color-primary) l c h / 0.15);
+}
+.password-input.error {
+  border-color: var(--color-error);
+  box-shadow: 0 0 0 3px oklch(from var(--color-error) l c h / 0.12);
+}
+.password-error {
+  font-size: var(--text-xs);
+  color: var(--color-error);
+  margin-top: var(--space-2);
+  display: none;
+  font-weight: 500;
+}
+.password-error.visible { display: block; }
+.btn-unlock {
+  width: 100%;
+  padding: var(--space-3) var(--space-6);
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  border-radius: var(--radius-md);
+  font-size: var(--text-base);
+  font-weight: 600;
+  margin-top: var(--space-2);
+  transition: background var(--transition), box-shadow var(--transition);
+}
+.btn-unlock:hover { background: var(--color-primary-hover); box-shadow: var(--shadow-sm); }
+.btn-unlock:active { background: var(--color-primary-active); }
+@media (max-width: 480px) {
+  .password-card { padding: var(--space-8) var(--space-6); }
+}
 </style>
 </head>
 <body>
@@ -473,7 +556,7 @@ main { flex: 1; padding: var(--space-8) var(--space-4); }
           <path d="M16 10 L16 6 M16 22 L16 26 M10 16 L6 16 M22 16 L26 16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
         </svg>
         <div>
-          <span class="logo-text">GOL Export</span>
+          <span class="logo-text">Export & International Business Management - ed.3</span>
           <span class="logo-sub">Simulatore Esame</span>
         </div>
       </a>
@@ -489,15 +572,46 @@ main { flex: 1; padding: var(--space-8) var(--space-4); }
   <main>
     <div class="container">
 
+      <!-- PASSWORD SCREEN -->
+      <section class="screen active" id="screenPassword">
+        <div class="password-screen">
+          <div class="password-card">
+            <svg class="password-logo" width="48" height="48" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+              <rect width="32" height="32" rx="8" fill="currentColor" opacity="0.12"/>
+              <path d="M8 16 Q16 6 24 16 Q16 26 8 16Z" stroke="currentColor" stroke-width="1.8" fill="none"/>
+              <circle cx="16" cy="16" r="3" fill="currentColor"/>
+              <path d="M16 10 L16 6 M16 22 L16 26 M10 16 L6 16 M22 16 L26 16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+            <div class="password-title">ACCESSO RISERVATO</div>
+            <div class="password-subtitle">Simulatore Esame di Qualifica TMC</div>
+            <div class="password-field">
+              <label for="pwdInput">Password studenti:</label>
+              <input
+                type="password"
+                id="pwdInput"
+                class="password-input"
+                placeholder="Inserisci la password"
+                autocomplete="off"
+                onkeydown="if(event.key==='Enter') checkPassword()"
+              />
+              <div class="password-error" id="pwdError">Password errata. Riprova.</div>
+            </div>
+            <button class="btn-unlock" onclick="checkPassword()">
+              Accedi →
+            </button>
+          </div>
+        </div>
+      </section>
+
       <!-- HOME SCREEN -->
-      <section class="screen active" id="screenHome">
+      <section class="screen" id="screenHome">
         <div class="hero">
           <div class="hero-badge">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
-            Mock-up Test per l'Esame di Qualifica Regionale TMC
+            Qualifica Regionale TMC
           </div>
-          <h1>Simulatore Esame<br>GOL Export</h1>
-          <p>Metti alla prova le tue conoscenze con 30 domande casuali estratte dalle 90 del programma completo — 5 per ogni macro-argomento.</p>
+          <h1>Simulatore Test<br>30 domande a risposta multipla</h1>
+          <p>Metti alla prova le tue conoscenze con domande casuali estratte dalle 90 del programma completo — 5 per ogni macro-argomento.</p>
 
           <div class="topics-grid">
             <div class="topic-card"><div class="topic-number">1</div><div><div class="topic-name">Marketing Fundamentals</div><div class="topic-count">15 domande in banca</div></div></div>
@@ -566,6 +680,24 @@ main { flex: 1; padding: var(--space-8) var(--space-4); }
 </div>
 
 <script>
+
+// ===== PASSWORD =====
+const ACCESS_PASSWORD = 'gema2026-tmc=ed2';
+function checkPassword() {
+  const input = document.getElementById('pwdInput');
+  const error = document.getElementById('pwdError');
+  if (input.value === ACCESS_PASSWORD) {
+    input.classList.remove('error');
+    error.classList.remove('visible');
+    showScreen('screenHome');
+  } else {
+    input.classList.add('error');
+    error.classList.add('visible');
+    input.value = '';
+    input.focus();
+  }
+}
+
 // ===== QUESTION BANK =====
 const BANK = [
   // ─── MARKETING FUNDAMENTALS (0-14) ───
